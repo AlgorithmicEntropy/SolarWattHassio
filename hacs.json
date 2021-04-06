@@ -1,0 +1,9 @@
+  
+{
+  "name": "SolarWatt Energy Manager",
+  "content_in_root": false,
+  "domains": ["sensor"],
+  "country": "DE",
+  "homeassistant": "0.100.0",
+  "iot_class": "Local Polling"
+}
