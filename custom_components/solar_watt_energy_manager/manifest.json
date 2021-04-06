@@ -1,0 +1,18 @@
+{
+  "domain": "solar_watt_energy_manager",
+  "name": "SolarWattEnergyManager",
+  "config_flow": true,
+  "documentation": "https://github.com/SebastianWallat/SolarWattHassio",
+  "issue_tracker": "https://github.com/SebastianWallat/SolarWattHassio/issues",
+  "requirements": [
+    "SolarWattEnergyManagerAPI==0.3.1"
+  ],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@SebastianWallat"
+  ],
+  "version": "0.1"
+}
