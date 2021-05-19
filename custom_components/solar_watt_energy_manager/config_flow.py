@@ -52,7 +52,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         """Initialize the config flow."""
-        self.available_resources = {}
         self.energy_manager_config = {}
 
     async def async_step_user(self, user_input=None):
@@ -63,7 +62,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             if not errors:
                 self.energy_manager_config.update(user_input)
-                self.available_resources.update(info["available_resources"])
                 title = user_input[CONF_HOST]
                 return self.async_create_entry(
                     title=title, data=self.energy_manager_config
