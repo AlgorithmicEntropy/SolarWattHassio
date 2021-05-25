@@ -5,7 +5,7 @@
   "documentation": "https://github.com/SebastianWallat/SolarWattHassio",
   "issue_tracker": "https://github.com/SebastianWallat/SolarWattHassio/issues",
   "requirements": [
-    "SolarWattEnergyManagerAPI==0.3.1"
+    "SolarWattEnergyManagerAPI==0.4"
   ],
   "ssdp": [],
   "zeroconf": [],
@@ -14,5 +14,5 @@
   "codeowners": [
     "@SebastianWallat"
   ],
-  "version": "0.1"
+  "version": "0.2"
 }
