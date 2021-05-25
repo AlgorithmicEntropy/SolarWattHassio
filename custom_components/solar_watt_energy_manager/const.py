@@ -1,6 +1,6 @@
 """Constants for the SolarWattEnergyManager integration."""
 
-from homeassistant.components.sensor import DEVICE_CLASS_BATTERY, DEVICE_CLASS_POWER
+from homeassistant.components.sensor import DEVICE_CLASS_BATTERY, DEVICE_CLASS_POWER, DEVICE_CLASS_TEMPERATURE
 from homeassistant.const import (
     ELECTRICAL_CURRENT_AMPERE,
     ELECTRICAL_VOLT_AMPERE,
@@ -8,6 +8,7 @@ from homeassistant.const import (
     PERCENTAGE,
     POWER_WATT,
     VOLT,
+    TEMPERATURE
 )
 
 DOMAIN = "solar_watt_energy_manager"
@@ -104,6 +105,30 @@ SENSOR_TYPES = {
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+    ],
+    "energymanager.device.mode": [
+        "EnergyManager Mode",
+        None,
+        "mdi:cog",
+        None,
+    ],
+    "energymanager.myreserve.health": [
+        "MyReserve Battery Health",
+        PERCENTAGE,
+        "mdi:battery-alert",
+        None,
+    ],
+    "energymanager.myreserve.temperature": [
+        "MyReserve Battery Temperature",
+        TEMPERATURE,
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+    ],
+    "energymanager.device.load": [
+        "EnergyManager CPU Load",
+        PERCENTAGE,
+        "mdi:cpu-32-bit",
+        None,
     ],
 }
 
