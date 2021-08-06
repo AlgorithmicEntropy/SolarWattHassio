@@ -5,7 +5,6 @@ from homeassistant.const import (
     FREQUENCY_HERTZ,
     PERCENTAGE,
     POWER_WATT,
-    VOLT,
     TEMP_CELSIUS
 )
 
