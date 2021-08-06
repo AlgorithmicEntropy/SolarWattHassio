@@ -2,13 +2,11 @@
 
 from homeassistant.components.sensor import DEVICE_CLASS_BATTERY, DEVICE_CLASS_POWER, DEVICE_CLASS_TEMPERATURE
 from homeassistant.const import (
-    ELECTRICAL_CURRENT_AMPERE,
-    ELECTRICAL_VOLT_AMPERE,
     FREQUENCY_HERTZ,
     PERCENTAGE,
     POWER_WATT,
     VOLT,
-    TEMPERATURE
+    TEMP_CELSIUS
 )
 
 DOMAIN = "solar_watt_energy_manager"
@@ -120,7 +118,7 @@ SENSOR_TYPES = {
     ],
     "energymanager.myreserve.temperature": [
         "MyReserve Battery Temperature",
-        TEMPERATURE,
+        TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
     ],

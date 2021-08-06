@@ -14,5 +14,5 @@
   "codeowners": [
     "@SebastianWallat"
   ],
-  "version": "0.2"
+  "iot_class": "local_polling"
 }
