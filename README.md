@@ -1,7 +1,7 @@
 # SolarWattHassio
 Home Assistant (hass.io) custom component for SolarWatt solar system
 
-
+![Hassfest](https://github.com/SebastianWallat/SolarWattHassio/actions/workflows/hassfest.yaml/badge.svg)
 
 #### Description
 The integration will provide multiple sensors, which provide stats about your solar installation.
