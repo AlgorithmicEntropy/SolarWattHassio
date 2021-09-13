@@ -1,11 +1,18 @@
 """Constants for the SolarWattEnergyManager integration."""
 
-from homeassistant.components.sensor import DEVICE_CLASS_BATTERY, DEVICE_CLASS_POWER, DEVICE_CLASS_TEMPERATURE
+from homeassistant.components.sensor import STATE_CLASS_TOTAL_INCREASING
 from homeassistant.const import (
     FREQUENCY_HERTZ,
     PERCENTAGE,
     POWER_WATT,
-    TEMP_CELSIUS
+    TEMP_CELSIUS,
+    CURRENCY_EURO,
+    ENERGY_KILO_WATT_HOUR,
+    DEVICE_CLASS_MONETARY,
+    DEVICE_CLASS_BATTERY,
+    DEVICE_CLASS_POWER,
+    DEVICE_CLASS_ENERGY,
+    DEVICE_CLASS_TEMPERATURE,
 )
 
 DOMAIN = "solar_watt_energy_manager"
@@ -18,7 +25,7 @@ ENERGY_MANAGER_NAME = "name"
 ENERGY_MANAGER_UNIQUE_ID = "unique_id"
 
 DEFAULT_SCAN_INTERVAL = 60
-DEFAULT_NAME = "EnergyManager"
+DEFAULT_NAME = "em"
 
 CONNECTION_STATUS = "connected"
 
@@ -26,110 +33,248 @@ UNDO_UPDATE_LISTENER = "undo_update_listener"
 
 SENSOR_TYPES = {
     "energymanager.myreserve.charge": [
-        "MyReserve Charge",
+        "myReserve charge",
         PERCENTAGE,
         "mdi:battery",
         DEVICE_CLASS_BATTERY,
+        None,
     ],
     "energymanager.pv.power_produced": [
-        "PV Power",
+        "pv power",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None,
     ],
     "energymanager.sens.power_consumed": [
-        "Power Consumed",
+        "power consumed sum",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None,
     ],
     "energymanager.sens.power_consumed_grid": [
-        "Power Consumed From Grid",
+        "power consumed grid",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None,
     ],
     "energymanager.sens.power_consumed_storage": [
-        "Power Consumed From Storage",
+        "power consumed storage",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None,
     ],
     "energymanager.sens.power_consumed_producer": [
-        "Power Consumed From Producers",
+        "power consumed pv",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None
     ],
     "energymanager.sens.power_to_grid": [
-        "Power Export to Grid",
+        "power to grid",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None
     ],
     "energymanager.myreserve.power_out": [
-        "Power Storage Out",
+        "power storage out",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None,
     ],
     "energymanager.myreserve.power_in": [
-        "Power Storage In",
+        "power storage in",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None,
     ],
     "energymanager.myreserve.power_self": [
-        "MyReserve Power Self Supplied",
+        "myReserve power self supplied",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None
     ],
     "energymanager.sens.power_self_consumed": [
-        "Power Self Consumed",
+        "power self consumed",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None,
     ],
     "energymanager.myreserve.power_in_grid": [
-        "MyReserve Power in from Grid",
+        "power buffered grid",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None,
     ],
     "energymanager.myreserve.power_in_producers": [
-        "MyReserve Power in from Producers",
+        "power buffered pv",
         POWER_WATT,
         "mdi:flash",
         DEVICE_CLASS_POWER,
+        None,
     ],
     "energymanager.device.mode": [
-        "EnergyManager Mode",
+        "energyManager mode",
         None,
         "mdi:cog",
         None,
+        None,
     ],
     "energymanager.myreserve.health": [
-        "MyReserve Battery Health",
+        "myReserve battery health",
         PERCENTAGE,
         "mdi:battery-alert",
         None,
+        None,
     ],
     "energymanager.myreserve.temperature": [
-        "MyReserve Battery Temperature",
+        "myReserve battery temperature",
         TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
+        None,
     ],
     "energymanager.device.load": [
-        "EnergyManager CPU Load",
+        "energyManager CPU Load",
         PERCENTAGE,
         "mdi:cpu-32-bit",
         None,
+        None,
     ],
+    "energymanager.price.profit_feed": [
+        "profit kWh to grid",
+        "EUR /kWh",
+        None,
+        DEVICE_CLASS_MONETARY,
+        None,
+    ],
+    "energymanager.price.price_work_in": [
+        "cost kWh from grid",
+        "EUR /kWh",
+        None,
+        DEVICE_CLASS_MONETARY,
+        None,
+    ],
+    "energymanager.work.self_consumed": [
+        "energy self consumed",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.self_supplied": [
+        "energy self supplied",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.consumed": [
+        "energy consumed",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.in": [
+        "energy net in",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.consumed_from_grid": [
+        "energy consumed grid",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.buffered_from_grid": [
+        "energy grid into storage",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.buffered_from_producers": [
+        "energy from pv into storage",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.consumed_from_storage": [
+        "energy consumed storage",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.out_from_storage": [
+        "energy to grid from storage",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.produced": [
+        "energy produced",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.buffered": [
+        "energy bufferd",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.released": [
+        "energy released",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.out_from_producers": [
+        "energy to grid from pv",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.consumed_from_producers": [
+        "energy consumed pv",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+    "energymanager.work.out": [
+        "energy net out",
+        ENERGY_KILO_WATT_HOUR,
+        "mdi:chart-histogram",
+        DEVICE_CLASS_ENERGY,
+        STATE_CLASS_TOTAL_INCREASING,
+    ],
+
 }
 
 SENSOR_NAME = 0
 SENSOR_UNIT = 1
 SENSOR_ICON = 2
 SENSOR_DEVICE_CLASS = 3
+SENSOR_STATE_CLASS = 4
