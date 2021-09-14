@@ -5,12 +5,11 @@ import logging
 from SolarWattEnergyManagerAPI.SolarWatt import EnergyManagerAPI
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.components.light import LightEntity
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import CONF_ALIAS, CONF_HOST, CONF_NAME, CONF_RESOURCES
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -22,6 +21,7 @@ from .const import (
     ENERGY_MANAGER_NAME,
     ENERGY_MANAGER_UNIQUE_ID,
     SENSOR_DEVICE_CLASS,
+    SENSOR_STATE_CLASS,
     SENSOR_ICON,
     SENSOR_NAME,
     SENSOR_TYPES,
@@ -81,7 +81,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     _LOGGER.debug(f"added sensors...")
 
 
-class EnergyManagerSensor(CoordinatorEntity, Entity):
+class EnergyManagerSensor(CoordinatorEntity, SensorEntity):
     """Representation of a sensor entity for energy manager status values."""
 
     def __init__(
@@ -96,14 +96,14 @@ class EnergyManagerSensor(CoordinatorEntity, Entity):
         super().__init__(coordinator)
         self._type = sensor_type
         self._device_name = name
-        self._name = f"{name}_{SENSOR_TYPES[sensor_type][SENSOR_NAME]}"
+        self._name = f"{SENSOR_TYPES[sensor_type][SENSOR_NAME]}"
         self._unit = SENSOR_TYPES[sensor_type][SENSOR_UNIT]
         self._data = data
         self._unique_id = unique_id
 
     @property
     def device_info(self):
-        """Device info for the ups."""
+        """Device info."""
         if not self._unique_id:
             return None
         device_info = {
@@ -122,10 +122,6 @@ class EnergyManagerSensor(CoordinatorEntity, Entity):
     @property
     def icon(self):
         """Icon to use in the frontend, if any."""
-        if SENSOR_TYPES[self._type][SENSOR_DEVICE_CLASS]:
-            # The UI will assign an icon
-            # if it has a class
-            return None
         return SENSOR_TYPES[self._type][SENSOR_ICON]
 
     @property
@@ -134,14 +130,19 @@ class EnergyManagerSensor(CoordinatorEntity, Entity):
         return SENSOR_TYPES[self._type][SENSOR_DEVICE_CLASS]
 
     @property
-    def state(self):
-        """Return entity state from ups."""
+    def state_class(self):
+        """State class of the sensor"""
+        return SENSOR_TYPES[self._type][SENSOR_STATE_CLASS]
+
+    @property
+    def native_value(self):
+        """Current value of the sensor"""
         if not self._data.status:
             return None
         return self._data.status.get(self._type)
 
     @property
-    def unit_of_measurement(self):
+    def native_unit_of_measurement(self):
         """Return the unit of measurement of this entity, if any."""
         return self._unit
 
