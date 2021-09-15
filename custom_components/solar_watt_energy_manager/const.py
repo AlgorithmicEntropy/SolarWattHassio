@@ -194,14 +194,14 @@ SENSOR_TYPES = {
         STATE_CLASS_TOTAL_INCREASING,
     ],
     "energymanager.work.consumed_from_grid": [
-        "energy consumed grid",
+        "energy consumed from grid",
         ENERGY_KILO_WATT_HOUR,
         "mdi:chart-histogram",
         DEVICE_CLASS_ENERGY,
         STATE_CLASS_TOTAL_INCREASING,
     ],
     "energymanager.work.buffered_from_grid": [
-        "energy grid into storage",
+        "energy from grid into storage",
         ENERGY_KILO_WATT_HOUR,
         "mdi:chart-histogram",
         DEVICE_CLASS_ENERGY,
@@ -215,7 +215,7 @@ SENSOR_TYPES = {
         STATE_CLASS_TOTAL_INCREASING,
     ],
     "energymanager.work.consumed_from_storage": [
-        "energy consumed storage",
+        "energy consumed from storage",
         ENERGY_KILO_WATT_HOUR,
         "mdi:chart-histogram",
         DEVICE_CLASS_ENERGY,
@@ -229,7 +229,7 @@ SENSOR_TYPES = {
         STATE_CLASS_TOTAL_INCREASING,
     ],
     "energymanager.work.produced": [
-        "energy produced",
+        "energy produced pv",
         ENERGY_KILO_WATT_HOUR,
         "mdi:chart-histogram",
         DEVICE_CLASS_ENERGY,
@@ -257,7 +257,7 @@ SENSOR_TYPES = {
         STATE_CLASS_TOTAL_INCREASING,
     ],
     "energymanager.work.consumed_from_producers": [
-        "energy consumed pv",
+        "energy consumed from pv",
         ENERGY_KILO_WATT_HOUR,
         "mdi:chart-histogram",
         DEVICE_CLASS_ENERGY,
