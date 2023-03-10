@@ -2,15 +2,14 @@
 
 import asyncio
 from datetime import timedelta
-import ipaddress
 import logging
 
-from SolarWattEnergyManagerAPI.SolarWatt import EnergyManagerAPI
+from LocalSolarWatt import EnergyManager
 import async_timeout
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_ALIAS, CONF_HOST, CONF_SCAN_INTERVAL, CONF_NAME
+from homeassistant.const import CONF_ALIAS, CONF_HOST, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
@@ -19,7 +18,6 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .const import (
     COORDINATOR,
     DEFAULT_SCAN_INTERVAL,
-    DEFAULT_NAME,
     DOMAIN,
     ENERGY_MANAGER_DATA,
     ENERGY_MANAGER_NAME,
@@ -31,18 +29,8 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup(hass: HomeAssistant, config: dict):
-    """Setup the solar watt energy manager component."""
-    hass.data.setdefault(DOMAIN, {})
-
-    return True
-
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up SolarWattEnergyManager from a config entry."""
-    # TODO Store an API object for your platforms to access
-    # hass.data[DOMAIN][entry.entry_id] = MyApi(...)
-
     config = entry.data
     host = config[CONF_HOST]
 
@@ -83,7 +71,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if unique_id is None:
         unique_id = entry.entry_id
 
-    hass.data[DOMAIN][entry.entry_id] = {
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         COORDINATOR: coordinator,
         ENERGY_MANAGER_DATA: data,
         ENERGY_MANAGER_NAME: data.name,
@@ -112,7 +100,7 @@ def _unique_id_from_status(status):
     return serial
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = all(
         await asyncio.gather(
@@ -134,12 +122,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 class EnergyManagerData:
     """Stores retrieved data"""
 
-    def __init__(self, host, alias):
+    def __init__(self, host, alias) -> None:
         self.host = host
         self._alias = alias
-        api = EnergyManagerAPI()
-        # api.set_logger(_LOGGER.cl)
-        api.set_host(host)
+        api = EnergyManager(host)
         self._api = api
         self._status = None
         self._connection_status = False

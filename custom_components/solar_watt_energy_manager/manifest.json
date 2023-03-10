@@ -5,15 +5,12 @@
   "documentation": "https://github.com/SebastianWallat/SolarWattHassio",
   "issue_tracker": "https://github.com/SebastianWallat/SolarWattHassio/issues",
   "requirements": [
-    "SolarWattEnergyManagerAPI==0.5.3"
+    "LocalSolarWatt==0.6.1"
   ],
-  "ssdp": [],
-  "zeroconf": [],
-  "homekit": {},
   "dependencies": [],
   "codeowners": [
     "@SebastianWallat"
   ],
   "iot_class": "local_polling",
-  "version": "0.1.4"
+  "version": "0.1.5"
 }

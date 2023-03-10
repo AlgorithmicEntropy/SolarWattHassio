@@ -1,17 +1,13 @@
 """Config flow for SolarWattEnergyManager integration."""
-import ipaddress
 import logging
 
 import voluptuous as vol
 
 from homeassistant import config_entries, core, exceptions
 from homeassistant.const import CONF_ALIAS, CONF_HOST, CONF_SCAN_INTERVAL
-from homeassistant.core import callback
-import homeassistant.helpers.config_validation as cv
 
 from . import EnergyManagerData
 from .const import (
-    CONNECTION_STATUS,
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
 )
