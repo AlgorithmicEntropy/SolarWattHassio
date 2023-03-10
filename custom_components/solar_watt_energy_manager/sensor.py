@@ -2,11 +2,9 @@
 
 import logging
 
-from SolarWattEnergyManagerAPI.SolarWatt import EnergyManagerAPI
 import voluptuous as vol
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
-from homeassistant.components.light import LightEntity
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import CONF_ALIAS, CONF_HOST, CONF_NAME, CONF_RESOURCES
 import homeassistant.helpers.config_validation as cv
@@ -15,7 +13,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     COORDINATOR,
     DEFAULT_NAME,
-    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     ENERGY_MANAGER_DATA,
     ENERGY_MANAGER_NAME,
@@ -78,7 +75,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     async_add_entities(entities)
 
-    _LOGGER.debug(f"added sensors...")
+    _LOGGER.debug("added sensors for energy manager")
 
 
 class EnergyManagerSensor(CoordinatorEntity, SensorEntity):
