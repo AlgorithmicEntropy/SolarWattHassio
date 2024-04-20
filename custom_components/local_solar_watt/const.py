@@ -470,10 +470,10 @@ DEVICE_MAPPER = {
 
 # TODO translation strings
 DEVICE_NAME_MAPPER = {
-    DC.BATTERY: "Battery",
-    DC.BATTERY_METER: "Battery Converter",
-    DC.INVERTER: "Inverter",
-    DC.LOCATION: "Installation",
+    DC.BATTERY: "PV Battery",
+    DC.BATTERY_METER: "PV Battery Converter",
+    DC.INVERTER: "PV Inverter",
+    DC.LOCATION: "PV Installation",
 }
 
 SENSOR_NAME = 0
