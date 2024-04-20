@@ -4,10 +4,6 @@ import asyncio
 from datetime import timedelta
 import logging
 
-from LocalSolarWatt import EnergyManager
-import async_timeout
-import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ALIAS, CONF_HOST, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
@@ -25,6 +21,7 @@ from .const import (
     PLATFORMS,
     UNDO_UPDATE_LISTENER,
 )
+from .api_data import ApiData
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,11 +34,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     alias = config.get(CONF_ALIAS)
     scan_interval = config.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
-    data = EnergyManagerData(host, alias)
+    data = ApiData(host, alias)
 
     async def async_update_data():
-        """Fetch data from api"""
-        async with async_timeout.timeout(10):
+        """Fetch data from api."""
+        async with asyncio.timeout(10):
             await hass.async_add_executor_job(data.update)
             if not data.status:
                 raise UpdateFailed("Error fetching energy manager api")
@@ -49,7 +46,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
-        name="solarWattEnergyManager",
+        name="Solar Watt Energy Manager",
         update_method=async_update_data,
         update_interval=timedelta(seconds=scan_interval),
     )
@@ -71,7 +68,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unique_id is None:
         unique_id = entry.entry_id
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
+    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN][entry.entry_id] = {
         COORDINATOR: coordinator,
         ENERGY_MANAGER_DATA: data,
         ENERGY_MANAGER_NAME: data.name,
@@ -117,44 +115,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
-
-
-class EnergyManagerData:
-    """Stores retrieved data"""
-
-    def __init__(self, host, alias) -> None:
-        self.host = host
-        self._alias = alias
-        api = EnergyManager(host)
-        self._api = api
-        self._status = None
-        self._connection_status = False
-
-    @property
-    def status(self):
-        """Get latest update if throttle allows. Return status."""
-        return self._status
-
-    @property
-    def name(self):
-        """Return the name of the device"""
-        return self._alias
-
-    @property
-    def connected(self):
-        """Last known state of the connection"""
-        return self._connection_status
-
-    def test_connection(self):
-        "Test connection to the energy manager api"
-        self._connection_status = self._api.test_connection()
-        if self._connection_status:
-            self.update()
-
-    def _get_status(self):
-        """Get the status from the energy manager api"""
-        return self._api.pull_data()
-
-    def update(self, **kwargs):
-        """Fetch the latest status"""
-        self._status = self._get_status()
