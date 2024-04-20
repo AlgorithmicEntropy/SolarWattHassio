@@ -1,0 +1,18 @@
+{
+  "domain": "local_solar_watt",
+  "name": "LocalSolarWatt",
+  "codeowners": [
+    "@AlgorithmicEntropy"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/AlgorithmicEntropy/SolarWattHassio",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "requirements": [
+    "LocalSolarWatt==0.7"
+  ],
+  "ssdp": [],
+  "zeroconf": [],
+  "version": "0.3.0"
+}
