@@ -11,6 +11,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
+from .api_data import ApiData
 from .const import (
     COORDINATOR,
     DEFAULT_SCAN_INTERVAL,
@@ -21,7 +22,6 @@ from .const import (
     PLATFORMS,
     UNDO_UPDATE_LISTENER,
 )
-from .api_data import ApiData
 
 _LOGGER = logging.getLogger(__name__)
 

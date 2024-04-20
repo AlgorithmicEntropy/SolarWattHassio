@@ -5,7 +5,12 @@ import logging
 from local_solar_watt import Api
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import (
+    PLATFORM_SCHEMA,
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import CONF_ALIAS, CONF_HOST, CONF_NAME, CONF_RESOURCES
 from homeassistant.core import HomeAssistant
@@ -27,6 +32,7 @@ from .const import (
     SENSOR_DEVICE_CLASS,
     SENSOR_ICON,
     SENSOR_NAME,
+    SENSOR_STATE_CLASS,
     SENSOR_UNIT,
 )
 
@@ -90,7 +96,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class EnergyManagerSensor(CoordinatorEntity, Entity):
+class EnergyManagerSensor(CoordinatorEntity, SensorEntity):
     """Representation of a sensor entity for energy manager status values."""
 
     _attr_has_entity_name = True
@@ -107,12 +113,12 @@ class EnergyManagerSensor(CoordinatorEntity, Entity):
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._sensor_conf = sensor_conf
         self._type_class = sensor_class
         self._data_id = sensor_id
         self._name = sensor_conf[SENSOR_NAME]
         self._unit = sensor_conf[SENSOR_UNIT]
         self._device_class = sensor_conf[SENSOR_DEVICE_CLASS]
+        self._state_class = sensor_conf[SENSOR_STATE_CLASS]
         self._icon = sensor_conf[SENSOR_ICON]
         self._data = data
         self._unique_id = f"{host}_{device_name}_{sensor_id}"
@@ -122,6 +128,9 @@ class EnergyManagerSensor(CoordinatorEntity, Entity):
             manufacturer="Solar Watt",  # TODO set manufacturer and device ids from API info
             configuration_url=f"http://{host}",
         )
+        # set precision for numeric data
+        if isinstance(self.native_value, float):
+            self._attr_suggested_display_precision = 2
 
     @property
     def device_info(self) -> DeviceInfo | None:
@@ -139,19 +148,24 @@ class EnergyManagerSensor(CoordinatorEntity, Entity):
         return self._icon
 
     @property
-    def device_class(self) -> str | None:
+    def device_class(self) -> SensorDeviceClass | None:
         """Device class of the sensor."""
         return self._device_class
 
     @property
-    def state(self) -> str | None:
+    def native_value(self) -> str | None:
         """Return entity state from ups."""
         if not self._data.status:
             return None
         return self._data.status.get(self._type_class).get(self._data_id)
 
     @property
-    def unit_of_measurement(self) -> str | None:
+    def state_class(self) -> SensorStateClass | None:
+        """State class of the sensor."""
+        return self._state_class
+
+    @property
+    def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement of this entity, if any."""
         return self._unit
 

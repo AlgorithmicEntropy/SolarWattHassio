@@ -1,6 +1,6 @@
   
 {
-  "name": "SolarWatt Energy Manager",
+  "name": "Local SolarWatt",
   "content_in_root": false,
   "country": "DE",
   "homeassistant": "2024.4.0",
