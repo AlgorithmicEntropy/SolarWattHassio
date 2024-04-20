@@ -1,4 +1,4 @@
-"""The SolarWattEnergyManager integration."""
+"""The LocalSolarWatt integration."""
 
 import asyncio
 from datetime import timedelta
@@ -27,7 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up SolarWattEnergyManager from a config entry."""
+    """Set up LocalSolarWatt from a config entry."""
     config = entry.data
     host = config[CONF_HOST]
 
@@ -46,7 +46,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
-        name="Solar Watt Energy Manager",
+        name="LocalSolarWatt",
         update_method=async_update_data,
         update_interval=timedelta(seconds=scan_interval),
     )
