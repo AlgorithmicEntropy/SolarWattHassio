@@ -68,6 +68,13 @@ BATTERY_TYPES = {
 
 # this will be also part of the storage entity, but it is a different device in the API so keep it separate
 BATTERY_METER_TYPES = {
+    "id_firmware": [
+        "Firmware Version",
+        None,
+        "mdi:information-variant",
+        None,
+        None,
+    ],
     "ac_power": [
         "AC Power",
         UnitOfPower.WATT,
@@ -127,13 +134,6 @@ BATTERY_METER_TYPES = {
     ],
     "power_ac_out": [
         "Power AC Out",
-        UnitOfPower.WATT,
-        "mdi:flash",
-        SensorDeviceClass.POWER,
-        SensorStateClass.MEASUREMENT,
-    ],
-    "power_request_wanted": [
-        "Power Request Wanted",
         UnitOfPower.WATT,
         "mdi:flash",
         SensorDeviceClass.POWER,
@@ -247,6 +247,13 @@ BATTERY_METER_TYPES = {
 }
 
 INVERTER_TYPES = {
+    "id_firmware": [
+        "Firmware Version",
+        None,
+        "mdi:information-variant",
+        None,
+        None,
+    ],
     "device_state": [
         "Device State",
         None,
