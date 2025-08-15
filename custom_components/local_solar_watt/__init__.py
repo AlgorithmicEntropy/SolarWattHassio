@@ -1,17 +1,13 @@
 """The LocalSolarWatt integration."""
 
 import asyncio
-from datetime import timedelta
 import logging
-
+from datetime import timedelta
+from .coordinator import UpdateCoordinator
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ALIAS, CONF_HOST, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-
-from .api_data import ApiData
+from .client_wrapper import ClientWrapper
 from .const import (
     COORDINATOR,
     DEFAULT_SCAN_INTERVAL,
@@ -28,74 +24,41 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up LocalSolarWatt from a config entry."""
-    config = entry.data
-    host = config[CONF_HOST]
+    # Add the needed sensors to hass
+    host = entry.data[CONF_HOST]
+    update_interval = entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
-    alias = config.get(CONF_ALIAS)
-    scan_interval = config.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-
-    data = ApiData(host, alias)
-
-    async def async_update_data():
-        """Fetch data from api."""
-        async with asyncio.timeout(10):
-            await hass.async_add_executor_job(data.update)
-            if not data.status:
-                raise UpdateFailed("Error fetching energy manager api")
-
-    coordinator = DataUpdateCoordinator(
+    client = ClientWrapper(host)
+    coordinator = UpdateCoordinator(
         hass,
-        _LOGGER,
-        name="LocalSolarWatt",
-        update_method=async_update_data,
-        update_interval=timedelta(seconds=scan_interval),
+        config_entry=entry,
+        client=client,
+        update_interval=timedelta(seconds=update_interval),
+        always_update=True,
     )
-
-    # Fetch initial data so we have data when entities subscribe
-    await coordinator.async_refresh()
-    status = data.status
-
-    if not status:
-        _LOGGER.error("EnergyManager Sensor has no data, unable to set up")
-        raise ConfigEntryNotReady
-
-    _LOGGER.debug("EnergyManager Sensors Available: %s", status)
-
-    undo_listener = entry.add_update_listener(_async_update_listener)
-
-    unique_id = _unique_id_from_status(status)
-
-    if unique_id is None:
-        unique_id = entry.entry_id
+    await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
+        CONF_HOST: host,
+        CONF_ALIAS: entry.data[CONF_ALIAS],
         COORDINATOR: coordinator,
-        ENERGY_MANAGER_DATA: data,
-        ENERGY_MANAGER_NAME: data.name,
-        ENERGY_MANAGER_UNIQUE_ID: unique_id,
-        UNDO_UPDATE_LISTENER: undo_listener,
+        ENERGY_MANAGER_NAME: entry.data[CONF_ALIAS],
+        ENERGY_MANAGER_UNIQUE_ID: entry.unique_id,
+        UNDO_UPDATE_LISTENER: None,
     }
 
+    entry.add_update_listener(_async_update_listener)
     for component in PLATFORMS:
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
-
     return True
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry):
     """Handle options update."""
     await hass.config_entries.async_reload(entry.entry_id)
-
-
-def _unique_id_from_status(status):
-    """Find the best unique id value from the status."""
-    serial = status.get("Serial")
-    if not serial:
-        return None
-    return serial
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -108,10 +71,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             ]
         )
     )
-
     hass.data[DOMAIN][entry.entry_id][UNDO_UPDATE_LISTENER]()
-
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
-
     return unload_ok

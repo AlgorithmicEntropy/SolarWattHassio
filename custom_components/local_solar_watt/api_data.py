@@ -1,6 +1,6 @@
 """Class to retrive data from the api."""
 
-from local_solar_watt import Api
+from local_solar_watt import EnergyManagerApi, EnergyManagerVersion
 
 
 class ApiData:
@@ -10,7 +10,7 @@ class ApiData:
         """Initialize the data object."""
         self.host = host
         self._alias = alias
-        api = Api(host)
+        api = EnergyManagerApi(EnergyManagerVersion.CLASSIC, host)
         self._api = api
         self._status = None
         self._connection_error = None
@@ -44,4 +44,4 @@ class ApiData:
 
     def update(self, **kwargs):
         """Fetch the latest status."""
-        self._status = self._api.pull_data()
+        self._status = self._api.fetch_data()

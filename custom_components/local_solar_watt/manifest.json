@@ -5,14 +5,9 @@
     "@AlgorithmicEntropy"
   ],
   "config_flow": true,
-  "dependencies": [],
-  "documentation": "https://github.com/AlgorithmicEntropy/SolarWattHassio",
-  "homekit": {},
+  "documentation": "https://www.home-assistant.io/integrations/SolarWattHassio",
   "iot_class": "local_polling",
   "requirements": [
-    "LocalSolarWatt==0.7.1"
-  ],
-  "ssdp": [],
-  "version": "0.3.2",
-  "zeroconf": []
+    "LocalSolarWatt==0.8.1"
+  ]
 }
