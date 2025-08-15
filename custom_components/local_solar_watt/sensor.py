@@ -1,26 +1,30 @@
 """Build sensor enteties frim api data."""
 
+from datetime import timedelta
 import logging
 
-from local_solar_watt import Api
 import voluptuous as vol
 
 from homeassistant.components.sensor import (
-    PLATFORM_SCHEMA,
+    PLATFORM_SCHEMA as SENSOR_PLATFORM_SCHEMA,
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import CONF_ALIAS, CONF_HOST, CONF_NAME, CONF_RESOURCES
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry as dr
+from homeassistant.core import HomeAssistant, callback
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import (
+    AddConfigEntryEntitiesCallback,
+    AddEntitiesCallback,
+)
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+)
 
 from .const import (
     COORDINATOR,
@@ -28,7 +32,6 @@ from .const import (
     DEVICE_MAPPER,
     DEVICE_NAME_MAPPER,
     DOMAIN,
-    ENERGY_MANAGER_DATA,
     SENSOR_DEVICE_CLASS,
     SENSOR_ICON,
     SENSOR_NAME,
@@ -39,7 +42,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+SENSOR_PLATFORM_SCHEMA = SENSOR_PLATFORM_SCHEMA.extend(
     {
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Optional(CONF_HOST): cv.string,
@@ -67,33 +70,36 @@ async def async_setup_platform(
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Add the solar watt energy manager sensors."""
-    # Add the needed sensors to hass
-    energy_manager_data = hass.data[DOMAIN][entry.entry_id]
-    coordinator = energy_manager_data[COORDINATOR]
-    data = energy_manager_data[ENERGY_MANAGER_DATA]
-    status = data.status
-
+    config = hass.data[DOMAIN][entry.entry_id]
+    host = config[CONF_HOST]
+    coordinator: DataUpdateCoordinator = config[COORDINATOR]
+    sensor_data = coordinator.data
     entities = []
 
-    for device_class in status:
-        sensor_type_class = DEVICE_MAPPER[device_class]
-        entities += [
-            EnergyManagerSensor(
-                coordinator,
-                data,
-                DEVICE_NAME_MAPPER[device_class],
-                sensor_type_class[id],
-                device_class,
-                data.host,
-                id,
-            )
-            for id in sensor_type_class
-        ]
-
+    for device_class in sensor_data:
+        class_items = DEVICE_MAPPER[device_class]
+        # Get number of discovered instances of this type, e.g. 2 inverters
+        num_devices = len(sensor_data[device_class])
+        for i in range(num_devices):
+            entities += [
+                EnergyManagerSensor(
+                    coordinator,
+                    i,
+                    DEVICE_NAME_MAPPER[device_class] + str(i),
+                    class_items[sensor_id],
+                    device_class,
+                    host,
+                    sensor_id,
+                )
+                for sensor_id in class_items
+            ]
     async_add_entities(entities)
+    coordinator.async_update_listeners()
 
 
 class EnergyManagerSensor(CoordinatorEntity, SensorEntity):
@@ -104,7 +110,7 @@ class EnergyManagerSensor(CoordinatorEntity, SensorEntity):
     def __init__(
         self,
         coordinator,
-        data,
+        device_idx,
         device_name,
         sensor_conf,
         sensor_class,
@@ -114,62 +120,48 @@ class EnergyManagerSensor(CoordinatorEntity, SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._type_class = sensor_class
-        self._data_id = sensor_id
-        self._name = sensor_conf[SENSOR_NAME]
-        self._unit = sensor_conf[SENSOR_UNIT]
+        self._sensor_id = sensor_id
+        self._device_idx = device_idx
+        self._attr_name = sensor_conf[SENSOR_NAME]
+        self._unit_of_measurement = sensor_conf[SENSOR_UNIT]
         self._device_class = sensor_conf[SENSOR_DEVICE_CLASS]
         self._state_class = sensor_conf[SENSOR_STATE_CLASS]
-        self._icon = sensor_conf[SENSOR_ICON]
-        self._data = data
-        self._unique_id = f"{host}_{device_name}_{sensor_id}"
-        self._device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{host.replace(".", "_")}_{device_name}")},
+        self._attr_icon = sensor_conf[SENSOR_ICON]
+        self._attr_unique_id = f"{host}_{device_name}_{sensor_id}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{host.replace('.', '_')}_{device_name}")},
             name=device_name,
             manufacturer="Solar Watt",  # TODO set manufacturer and device ids from API info
             configuration_url=f"http://{host}",
         )
-        # set precision for numeric data
-        if isinstance(self.native_value, float):
+        # set precision for numeric data, mybe there is a better way to do this
+        if self._state_class == SensorStateClass.TOTAL_INCREASING:
             self._attr_suggested_display_precision = 2
 
     @property
-    def device_info(self) -> DeviceInfo | None:
-        """Device info for the ups."""
-        return self._device_info
-
-    @property
-    def unique_id(self) -> str | None:
-        """Sensor Unique id."""
-        return self._unique_id
-
-    @property
-    def icon(self) -> str | None:
-        """Icon to use in the frontend, if any."""
-        return self._icon
-
-    @property
-    def device_class(self) -> SensorDeviceClass | None:
-        """Device class of the sensor."""
-        return self._device_class
+    def native_unit_of_measurement(self) -> str | None:
+        """Return the unit of measurement."""
+        return self._unit_of_measurement
 
     @property
     def native_value(self) -> str | None:
-        """Return entity state from ups."""
-        if not self._data.status:
-            return None
-        return self._data.status.get(self._type_class).get(self._data_id)
+        """Return the state of the sensor."""
+        return self._attr_native_value
+
+    @property
+    def device_class(self) -> SensorDeviceClass | None:
+        """Return the device class of the sensor."""
+        return self._device_class
 
     @property
     def state_class(self) -> SensorStateClass | None:
-        """State class of the sensor."""
+        """Return the state class of the sensor."""
         return self._state_class
 
-    @property
-    def native_unit_of_measurement(self) -> str | None:
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit
-
-    @property
-    def name(self) -> str | None:
-        """Name of the enity."""
-        return self._name
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        data = self.coordinator.data
+        val = data.get(self._type_class)[self._device_idx].get(self._sensor_id)
+        self._attr_native_value = val
+        self.async_write_ha_state()

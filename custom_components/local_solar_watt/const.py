@@ -4,7 +4,7 @@ from local_solar_watt import DeviceClass as DC
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import (
-    CURRENCY_EURO,
+    CURRENCY_CENT,
     PERCENTAGE,
     UnitOfElectricCurrent,
     UnitOfEnergy,
@@ -523,7 +523,7 @@ LOCATION_TYPES = {
         SensorDeviceClass.ENERGY,
         SensorStateClass.TOTAL_INCREASING,
     ],
-    "price_work_in": ["Price Work In", CURRENCY_EURO, "mdi:currency-eur", None, None],
+    "price_work_in": ["Price Work In", CURRENCY_CENT, "mdi:currency-eur", None, None],
 }
 
 DEVICE_MAPPER = {
