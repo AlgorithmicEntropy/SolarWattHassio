@@ -42,8 +42,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         if user_input is not None:
             host = user_input[CONF_HOST]
+            api_version = EnergyManagerVersion(user_input[CONF_API_VERSION])
             alias = user_input.get(CONF_ALIAS)
-            api = ClientWrapper(host)
+            api = ClientWrapper(host, api_version)
             await self.hass.async_add_executor_job(api.test_connection)
             if not api.connected:
                 return self.async_abort(reason="cannot_connect")
