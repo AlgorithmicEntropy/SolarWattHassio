@@ -6,6 +6,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import (
     CURRENCY_CENT,
     PERCENTAGE,
+    Platform,
     UnitOfElectricCurrent,
     UnitOfEnergy,
     UnitOfPower,
@@ -14,7 +15,7 @@ from homeassistant.const import (
 
 DOMAIN = "local_solar_watt"
 
-PLATFORMS = ["sensor"]
+PLATFORMS = [Platform.SENSOR]
 
 COORDINATOR = "coordinator"
 ENERGY_MANAGER_DATA = "data"
